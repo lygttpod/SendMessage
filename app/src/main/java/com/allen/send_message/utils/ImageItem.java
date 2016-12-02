@@ -6,14 +6,13 @@ package com.allen.send_message.utils;
 
 public class ImageItem {
     public static String path;
+    public ImageItem( ) {}
     public ImageItem(String p) {
         this.path = p;
     }
-
     public String getPath() {
         return path;
     }
-
     public void setPath(String path) {
         this.path = path;
     }

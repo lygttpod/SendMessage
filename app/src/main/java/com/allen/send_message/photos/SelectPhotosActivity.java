@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -22,9 +21,12 @@ import android.widget.Toast;
 import com.allen.send_message.R;
 import com.allen.send_message.adapter.PictureAdapter;
 import com.allen.send_message.utils.ImageFloder;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.allen.send_message.utils.ImageItem;
+import com.allen.send_message.utils.SelectPhotosEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -66,9 +68,8 @@ public class SelectPhotosActivity extends Activity {
     public static final String INTENT_SELECTED_PICTURE = "intent_selected_picture";
     private Context context;
     private  PictureAdapter adapter;
-    private ImageLoader loader;
+//    private ImageLoader loader;
     private ContentResolver mContentResolver;
-    private DisplayImageOptions options;
     //选择的照片怎么通过这个传出去
     private ArrayList<String> selectedPicture = new ArrayList<String>();
     private String cameraPath = null;
@@ -78,23 +79,17 @@ public class SelectPhotosActivity extends Activity {
     private HashMap<String, Integer> tmpDir = new HashMap<String, Integer>();
     private ArrayList<ImageFloder> mDirPaths = new ArrayList<ImageFloder>();
 
-    @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_photo);
         ButterKnife.bind(this);
         init();
     }
-
     private void init() {
         MAX_NUM = getIntent().getIntExtra(INTENT_MAX_NUM, 6);
         context = this;
         mContentResolver = getContentResolver();
-        loader = ImageLoader.getInstance();
-        options = new DisplayImageOptions.Builder().showImageOnLoading(R.mipmap.ic_launcher)
-                .showImageForEmptyUri(R.mipmap.ic_launcher).showImageOnFail(R.mipmap.ic_launcher)
-                .cacheInMemory(true).cacheOnDisk(true).considerExifParams(true)
-                .imageScaleType(ImageScaleType.EXACTLY).bitmapConfig(Bitmap.Config.RGB_565).build();
+        EventBus.getDefault().register(this);
         initView();
     }
 
@@ -113,7 +108,49 @@ public class SelectPhotosActivity extends Activity {
                 }
             }
         });
+        getThumbnail();
     }
+    /**
+     * 得到缩略图
+     */
+    private void getThumbnail() {
+        Cursor mCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[] { MediaStore.Images.ImageColumns.DATA }, "", null,
+                MediaStore.MediaColumns.DATE_ADDED + " DESC");
+        if (mCursor.moveToFirst()) {
+            int _date = mCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            do {
+                // 获取图片的路径
+                String path = mCursor.getString(_date);
+                // Log.e("TAG", path);
+                ImageItem item= new ImageItem();
+                item.setPath(path);
+                imageAll.images.add(item);
+                // 获取该图片的父路径名
+                File parentFile = new File(path).getParentFile();
+                if (parentFile == null) {
+                    continue;
+                }
+                ImageFloder imageFloder = null;
+                String dirPath = parentFile.getAbsolutePath();
+                if (!tmpDir.containsKey(dirPath)) {
+                    // 初始化imageFloder
+                    imageFloder = new ImageFloder();
+                    imageFloder.setDir(dirPath);
+                    imageFloder.setFirstImagePath(path);
+                    mDirPaths.add(imageFloder);
+                    // Log.d("zyh", dirPath + "," + path);
+                    tmpDir.put(dirPath, mDirPaths.indexOf(imageFloder));
+                } else {
+                    imageFloder = mDirPaths.get(tmpDir.get(dirPath));
+                }
+                imageFloder.images.add(new ImageItem(path));
+            } while (mCursor.moveToNext());
+        }
+        mCursor.close();
+        tmpDir = null;
+    }
+
     /**
      * 使用相机拍照
      *
@@ -148,10 +185,12 @@ public class SelectPhotosActivity extends Activity {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+//        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+        File mediaFile = new File(".jpg");
         cameraPath = mediaFile.getAbsolutePath();
         return Uri.fromFile(mediaFile);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // super.onActivityResult(requestCode, resultCode, data);
@@ -163,11 +202,12 @@ public class SelectPhotosActivity extends Activity {
             this.finish();
         }
     }
+
     @OnClick({R.id.select_cancel_bt, R.id.select_ok_bt})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.select_cancel_bt:
-                onBackPressed();
+                this.finish();
                 break;
             case R.id.select_ok_bt:
                 Intent data = new Intent();
@@ -176,5 +216,16 @@ public class SelectPhotosActivity extends Activity {
                 this.finish();
                 break;
         }
+    }
+
+    /**
+     * 获取选了多少张图片
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void selectPhotosEvent(SelectPhotosEvent event) {
+       int photoNum= event.getSize();
+        selectOkBt.setEnabled(photoNum>0);
+        selectOkBt.setText("完成" + photoNum + "/" + MAX_NUM);
     }
 }
