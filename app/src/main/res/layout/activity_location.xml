@@ -4,36 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:background="@android:color/white"
-        android:layout_width="match_parent"
-        android:layout_height="50dp">
-        <TextView
-            android:id="@+id/cancel_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:text="@string/cancel" />
 
-        <TextView
-            android:id="@+id/title_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="@string/location" />
-
-        <TextView
-            android:id="@+id/ok_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:text="完成" />
-
-    </RelativeLayout>
+    <include layout="@layout/top_bar_layout"/>
 
     <SearchView
         android:queryHint="搜索"
