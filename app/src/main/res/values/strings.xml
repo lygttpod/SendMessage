@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SendMessage</string>
+    <string name="cancel">取消</string>
+    <string name="location">所在位置</string>
 </resources>
