@@ -63,6 +63,7 @@
             android:screenOrientation="portrait" />
         <activity android:name=".location.LocationActivity" />
         <activity android:name=".location.SearchLocationActivity"/>
+        <activity android:name=".zone.ZoneActivity"/>
     </application>
 
 </manifest>
