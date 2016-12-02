@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.allen.send_message.location.LocationActivity;
-import com.allen.send_message.photos.SelectPhotosActivity;
+import com.allen.send_message.photos.SelectPhotosActivity1;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.photos_btn:
-                intent.setClass(this, SelectPhotosActivity.class);
+//                intent.setClass(this, SelectPhotosActivity.class);
+                intent.setClass(this, SelectPhotosActivity1.class);
                 startActivity(intent);
                 break;
             case R.id.zone_btn:

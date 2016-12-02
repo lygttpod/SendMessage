@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.allen.send_message.R;
 import com.allen.send_message.adapter.PictureAdapter;
 import com.allen.send_message.utils.ImageFloder;
-import com.allen.send_message.utils.ImageItem;
 import com.allen.send_message.utils.SelectPhotosEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -58,7 +57,7 @@ public class SelectPhotosActivity extends Activity {
     GridView selectPhotoGv;
     @BindView(R.id.activity_main)
     RelativeLayout activityMain;
-    private ImageFloder imageAll, currentImageFolder;
+    private ImageFloder imageAll;
     /**
      * 最多选择图片的个数
      */
@@ -67,8 +66,8 @@ public class SelectPhotosActivity extends Activity {
     public static final String INTENT_MAX_NUM = "intent_max_num";
     public static final String INTENT_SELECTED_PICTURE = "intent_selected_picture";
     private Context context;
-    private  PictureAdapter adapter;
-//    private ImageLoader loader;
+    private PictureAdapter adapter;
+    //    private ImageLoader loader;
     private ContentResolver mContentResolver;
     //选择的照片怎么通过这个传出去
     private ArrayList<String> selectedPicture = new ArrayList<String>();
@@ -85,6 +84,7 @@ public class SelectPhotosActivity extends Activity {
         ButterKnife.bind(this);
         init();
     }
+
     private void init() {
         MAX_NUM = getIntent().getIntExtra(INTENT_MAX_NUM, 6);
         context = this;
@@ -95,10 +95,9 @@ public class SelectPhotosActivity extends Activity {
 
     private void initView() {
         imageAll = new ImageFloder();
-        currentImageFolder = imageAll;
         mDirPaths.add(imageAll);
         selectOkBt.setText("完成0/" + MAX_NUM);
-        adapter = new PictureAdapter(this,currentImageFolder.images);
+        adapter = new PictureAdapter(this, imageAll.images);
         selectPhotoGv.setAdapter(adapter);
         selectPhotoGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -110,12 +109,13 @@ public class SelectPhotosActivity extends Activity {
         });
         getThumbnail();
     }
+
     /**
      * 得到缩略图
      */
     private void getThumbnail() {
         Cursor mCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.ImageColumns.DATA }, "", null,
+                new String[]{MediaStore.Images.ImageColumns.DATA}, "", null,
                 MediaStore.MediaColumns.DATE_ADDED + " DESC");
         if (mCursor.moveToFirst()) {
             int _date = mCursor.getColumnIndex(MediaStore.Images.Media.DATA);
@@ -123,9 +123,7 @@ public class SelectPhotosActivity extends Activity {
                 // 获取图片的路径
                 String path = mCursor.getString(_date);
                 // Log.e("TAG", path);
-                ImageItem item= new ImageItem();
-                item.setPath(path);
-                imageAll.images.add(item);
+//                imageAll.images.add(new ImageItem(path));
                 // 获取该图片的父路径名
                 File parentFile = new File(path).getParentFile();
                 if (parentFile == null) {
@@ -136,7 +134,6 @@ public class SelectPhotosActivity extends Activity {
                 if (!tmpDir.containsKey(dirPath)) {
                     // 初始化imageFloder
                     imageFloder = new ImageFloder();
-                    imageFloder.setDir(dirPath);
                     imageFloder.setFirstImagePath(path);
                     mDirPaths.add(imageFloder);
                     // Log.d("zyh", dirPath + "," + path);
@@ -144,7 +141,7 @@ public class SelectPhotosActivity extends Activity {
                 } else {
                     imageFloder = mDirPaths.get(tmpDir.get(dirPath));
                 }
-                imageFloder.images.add(new ImageItem(path));
+//                    imageFloder.images.add(new ImageItem(path));
             } while (mCursor.moveToNext());
         }
         mCursor.close();
@@ -168,12 +165,13 @@ public class SelectPhotosActivity extends Activity {
         openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         startActivityForResult(openCameraIntent, TAKE_PICTURE);
     }
+
     /**
      * 用于拍照时获取输出的Uri
      *
+     * @return
      * @version 1.0
      * @author zyh
-     * @return
      */
     protected Uri getOutputMediaFileUri() {
         File mediaStorageDir = new File(
@@ -185,15 +183,14 @@ public class SelectPhotosActivity extends Activity {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-        File mediaFile = new File(".jpg");
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+//        File mediaFile = new File(".jpg");
         cameraPath = mediaFile.getAbsolutePath();
         return Uri.fromFile(mediaFile);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && cameraPath != null) {
             selectedPicture.add(cameraPath);
             Intent data2 = new Intent();
@@ -220,12 +217,13 @@ public class SelectPhotosActivity extends Activity {
 
     /**
      * 获取选了多少张图片
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void selectPhotosEvent(SelectPhotosEvent event) {
-       int photoNum= event.getSize();
-        selectOkBt.setEnabled(photoNum>0);
+        int photoNum = event.getSize();
+        selectOkBt.setEnabled(photoNum > 0);
         selectOkBt.setText("完成" + photoNum + "/" + MAX_NUM);
     }
 }

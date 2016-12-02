@@ -57,6 +57,9 @@
         <activity
             android:name=".photos.SelectPhotosActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".photos.SelectPhotosActivity1"
+            android:screenOrientation="portrait" />
         <activity android:name=".location.LocationActivity" />
     </application>
 
