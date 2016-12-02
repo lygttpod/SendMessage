@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.allen.send_message.location.LocationActivity;
 import com.allen.send_message.photos.SelectPhotosActivity;
+import com.allen.send_message.zone.ZoneActivity;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.zone_btn:
+                intent.setClass(this, ZoneActivity.class);
+                startActivity(intent);
                 break;
         }
     }

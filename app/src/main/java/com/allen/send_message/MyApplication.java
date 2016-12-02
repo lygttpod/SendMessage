@@ -1,6 +1,7 @@
 package com.allen.send_message;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.allen.send_message.bean.PoiItemsBean;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 public class MyApplication extends Application {
 
+    private static Context mAppContext;
 
     private static String address;
 
@@ -35,10 +37,18 @@ public class MyApplication extends Application {
     }
 
 
+    public static Context getAppContext() {
+        return mAppContext;
+    }
 
+    public static void setAppContext(Context mAppContext) {
+        MyApplication.mAppContext = mAppContext;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        this.mAppContext = getApplicationContext();
+
     }
 }
