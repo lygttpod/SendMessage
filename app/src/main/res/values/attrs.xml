@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <!--topbar-->
+    <declare-styleable name="Topbar">
+        <attr name="leftIcon" format="reference|color"/>
+        <attr name="leftIconShow" format="boolean"/>
+
+        <attr name="leftText1" format="string"/>
+        <attr name="leftTextSize1" format="dimension"/>
+        <attr name="leftTextColor1" format="color"/>
+        <attr name="leftTextShow1" format="boolean"/>
+
+        <attr name="rightText1" format="string"/>
+        <attr name="rightTextSize1" format="dimension"/>
+        <attr name="rightTextColor1" format="color"/>
+        <attr name="rightTextShow1" format="boolean"/>
+
+        <attr name="centerText" format="string"/>
+        <attr name="centerTextSize" format="dimension"/>
+        <attr name="centerTextColor1" format="color"/>
+        <attr name="centerTextShow" format="boolean"/>
+
+        <attr name="centerBackground" format="reference|color"/>
+        <attr name="centerBackgroundShow" format="boolean"/>
+
+        <attr name="rightIcon" format="reference|color"/>
+        <attr name="rightIconShow" format="boolean"/>
+
+        <attr name="rightIcon2" format="reference|color"/>
+        <attr name="rightIcon2Show" format="boolean"/>
+
+        <attr name="backgroundColor" format="color"/>
+    </declare-styleable>
+
+</resources>
