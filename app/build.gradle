@@ -31,6 +31,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/AMap_Location_V3.1.0_20161027.jar')
     compile files('libs/AMap_Search_V3.6.1_20161122.jar')
+    compile files('libs/universal-image-loader-1.9.3.jar')
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.google.android.gms:play-services-appindexing:8.4.0'
 }
