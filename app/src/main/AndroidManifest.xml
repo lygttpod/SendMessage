@@ -34,11 +34,12 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.NoActionBar">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,12 +53,13 @@
             android:value="601fb3e1ca3f22df58aa7b622bca3943" />
 
         <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
-        <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name="com.amap.api.location.APSService"/>
 
         <activity
             android:name=".photos.SelectPhotosActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".location.LocationActivity" />
+        <activity android:name=".location.SearchLocationActivity"/>
     </application>
 
 </manifest>
