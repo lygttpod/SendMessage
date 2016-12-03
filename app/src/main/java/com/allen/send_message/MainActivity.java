@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.photos_btn:
-//                intent.setClass(this, SelectPhotosActivity.class);
                 intent.setClass(this, SelectPhotosActivity1.class);
                 startActivity(intent);
                 break;

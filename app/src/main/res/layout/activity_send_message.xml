@@ -113,7 +113,7 @@
                     android:text="位置 " />
 
                 <ImageView
-                    android:id="@+id/send_message_close"
+                    android:id="@+id/send_message_closeseat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -155,7 +155,7 @@
                     android:text="选择一个大本营" />
 
                 <ImageView
-                    android:id="@+id/send_message_close1"
+                    android:id="@+id/send_message_closestronghold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
