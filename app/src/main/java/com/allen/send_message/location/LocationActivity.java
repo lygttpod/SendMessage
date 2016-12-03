@@ -235,9 +235,13 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
             poiItemsBeans.clear();
             for (int i = 0; i < poiItems.size(); i++) {
                 if (i == 0) {
+                    PoiItemsBean poiItemBean = new PoiItemsBean("不显示位置", "", "");
+                    poiItemsBeans.add(poiItemBean);
+                } else if (i==1){
                     PoiItemsBean poiItemBean = new PoiItemsBean(mCityName, "", mLatitude + "," + mLongitude);
                     poiItemsBeans.add(poiItemBean);
-                } else {
+                }
+                else {
                     PoiItemsBean poiItemBean = new PoiItemsBean(poiItems.get(i).getTitle(), poiItems.get(i).getSnippet(), poiItems.get(i).getLatLonPoint().toString());
                     poiItemsBeans.add(poiItemBean);
                 }
