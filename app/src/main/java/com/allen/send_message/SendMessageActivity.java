@@ -11,10 +11,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.allen.send_message.bean.PoiItemsBean;
 import com.allen.send_message.bean.ZoneBean;
 import com.allen.send_message.location.LocationActivity;
 import com.allen.send_message.photos.SelectPhotosActivity1;
-import com.allen.send_message.utils.SelectPhotosEvent;
 import com.allen.send_message.zone.ZoneActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -36,7 +36,7 @@ public class SendMessageActivity extends AppCompatActivity {
     @BindView(R.id.select_photo_gv)
     GridView selectPhotoGv;
     @BindView(R.id.send_message_seat_tv)
-    TextView sendMessageSeatTv;
+    TextView seatTv;
     @BindView(R.id.send_message_closeseat)
     ImageView closeSeat;
     @BindView(R.id.send_message_seat_rl)
@@ -50,6 +50,8 @@ public class SendMessageActivity extends AppCompatActivity {
     @BindView(R.id.send_message_addphoto)
     ImageView addphoto;
     private Intent intent;
+    private String id;
+    private String LatLonPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +71,14 @@ public class SendMessageActivity extends AppCompatActivity {
         intent=new Intent();
         switch (view.getId()) {
             case R.id.select_cancel:
-//                finish();
+//                this.finish();
                 break;
             case R.id.select_ok:
 
                 break;
             case R.id.send_message_closeseat:
-
+                seatTv.setText("位置");
+                closeSeat.setVisibility(View.GONE);
                 break;
             //选择位置
             case R.id.send_message_seat_rl:
@@ -84,14 +87,14 @@ public class SendMessageActivity extends AppCompatActivity {
                 break;
 
             case R.id.send_message_closestronghold:
-
+                strongholdTv.setText("选择一个大本营");
+                closeStronghold.setVisibility(View.GONE);
                 break;
             //选择大本营
             case R.id.send_message_stronghold_rl:
                 intent.setClass(this, ZoneActivity.class);
                 startActivity(intent);
                 break;
-
             case R.id.send_message_addphoto:
                 intent.setClass(this, SelectPhotosActivity1.class);
                 startActivity(intent);
@@ -100,9 +103,17 @@ public class SendMessageActivity extends AppCompatActivity {
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getZoneName(ZoneBean.DataBean event) {
-        String id = event.getAdmin().getId();
+         id = event.getAdmin().getId();
         String name = event.getAdmin().getName();
-//        .setEnabled(photoNum > 0);
-//        selectOkBt.setText("完成" + photoNum + "/" + MAX_NUM);
+        strongholdTv.setText(name);
+        closeStronghold.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getPosition(PoiItemsBean event) {
+        LatLonPoint = event.getLatLonPoint();
+        String title = event.getTitle();
+        seatTv.setText(title);
+        closeStronghold.setVisibility(View.VISIBLE);
     }
 }
