@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginLeft="16dp"
@@ -22,9 +22,9 @@
             android:id="@+id/location_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:lines="1"
-            android:text="外滩SOHO"
             android:textSize="16sp" />
 
         <TextView
@@ -34,7 +34,6 @@
             android:layout_marginTop="7.5dp"
             android:ellipsize="end"
             android:lines="1"
-            android:text="中山东二路58号"
             android:textColor="#777777"
             android:textSize="13sp" />
     </LinearLayout>
@@ -45,5 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="16dp" />
+        android:layout_marginRight="16dp"
+        android:src="@mipmap/yes_icon"
+        android:visibility="gone" />
 </RelativeLayout>
