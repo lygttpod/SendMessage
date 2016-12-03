@@ -11,9 +11,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.allen.send_message.bean.ZoneBean;
 import com.allen.send_message.location.LocationActivity;
 import com.allen.send_message.photos.SelectPhotosActivity1;
+import com.allen.send_message.utils.SelectPhotosEvent;
 import com.allen.send_message.zone.ZoneActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,8 +56,8 @@ public class SendMessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_message);
         ButterKnife.bind(this);
+        EventBus.getDefault().register(this);
     }
-
     @OnClick({R.id.select_cancel,
             R.id.select_ok,
             R.id.send_message_closeseat,
@@ -69,6 +75,7 @@ public class SendMessageActivity extends AppCompatActivity {
 
                 break;
             case R.id.send_message_closeseat:
+
                 break;
             //选择位置
             case R.id.send_message_seat_rl:
@@ -90,5 +97,12 @@ public class SendMessageActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
         }
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getZoneName(ZoneBean.DataBean event) {
+        String id = event.getAdmin().getId();
+        String name = event.getAdmin().getName();
+//        .setEnabled(photoNum > 0);
+//        selectOkBt.setText("完成" + photoNum + "/" + MAX_NUM);
     }
 }
