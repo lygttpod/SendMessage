@@ -3,6 +3,9 @@ package com.allen.send_message;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,15 +14,23 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.allen.send_message.adapter.SendMessageAdapter;
 import com.allen.send_message.bean.PoiItemsBean;
+import com.allen.send_message.bean.SendPhotoBean;
 import com.allen.send_message.bean.ZoneBean;
 import com.allen.send_message.location.LocationActivity;
+import com.allen.send_message.location.LocationAdapter;
 import com.allen.send_message.photos.SelectPhotosActivity1;
+import com.allen.send_message.widget.DividerItemDecoration;
 import com.allen.send_message.zone.ZoneActivity;
+import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,7 +45,7 @@ public class SendMessageActivity extends AppCompatActivity {
     @BindView(R.id.send_content)
     EditText sendContent;
     @BindView(R.id.select_photo_gv)
-    GridView selectPhotoGv;
+    RecyclerView selectPhoto;
     @BindView(R.id.send_message_seat_tv)
     TextView seatTv;
     @BindView(R.id.send_message_closeseat)
@@ -52,6 +63,8 @@ public class SendMessageActivity extends AppCompatActivity {
     private Intent intent;
     private String id;
     private String LatLonPoint;
+    private SendMessageAdapter adapter;
+    private List<String> selectedPicture = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +72,16 @@ public class SendMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_send_message);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
+        init();
     }
+
+    private void init() {
+        adapter = new SendMessageAdapter(this, selectedPicture);
+        GridLayoutManager layout= new GridLayoutManager(this,3);
+        selectPhoto.setLayoutManager(layout);
+        selectPhoto.setAdapter(adapter);
+    }
+
     @OnClick({R.id.select_cancel,
             R.id.select_ok,
             R.id.send_message_closeseat,
@@ -85,7 +107,6 @@ public class SendMessageActivity extends AppCompatActivity {
                 intent.setClass(this, LocationActivity.class);
                 startActivity(intent);
                 break;
-
             case R.id.send_message_closestronghold:
                 strongholdTv.setText("选择一个大本营");
                 closeStronghold.setVisibility(View.GONE);
@@ -103,8 +124,8 @@ public class SendMessageActivity extends AppCompatActivity {
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getZoneName(ZoneBean.DataBean event) {
-         id = event.getAdmin().getId();
-        String name = event.getAdmin().getName();
+         id = event.getId();
+        String name = event.getName();
         strongholdTv.setText(name);
         closeStronghold.setVisibility(View.VISIBLE);
     }
@@ -115,5 +136,13 @@ public class SendMessageActivity extends AppCompatActivity {
         String title = event.getTitle();
         seatTv.setText(title);
         closeStronghold.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getPhotoPosition(SendPhotoBean data) {
+        for (int i= 0;i<data.getData().size();i++){
+            selectedPicture.add(data.getData().get(i));
+        }
+        adapter.notifyDataSetChanged();
     }
 }

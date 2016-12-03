@@ -23,8 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.allen.send_message.R;
+import com.allen.send_message.bean.SendPhotoBean;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -35,6 +38,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 /**
@@ -42,7 +46,7 @@ import butterknife.ButterKnife;
  * <p>
  * 选择照片
  */
-public class SelectPhotosActivity1 extends Activity implements View.OnClickListener ,AdapterView.OnItemClickListener{
+public class SelectPhotosActivity1 extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
     @BindView(R.id.select_cancel_bt)
     Button selectCancelBt;
     @BindView(R.id.select_ok_bt)
@@ -90,6 +94,7 @@ public class SelectPhotosActivity1 extends Activity implements View.OnClickListe
         mContentResolver = getContentResolver();
         initView();
     }
+
     private void initView() {
         imageAll = new ImageFloder();
         currentImageFolder = imageAll;
@@ -152,24 +157,28 @@ public class SelectPhotosActivity1 extends Activity implements View.OnClickListe
         }
     }
     @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        if (position == 0) {
+            goCamare();
+        }
+    }
+
+    @OnClick({R.id.select_cancel_bt, R.id.select_ok_bt})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.select_ok_bt:
-                Intent data = new Intent();
-                data.putExtra(INTENT_SELECTED_PICTURE, selectedPicture);
-                setResult(RESULT_OK, data);
+//                Intent data = new Intent();
+//                data.putExtra(INTENT_SELECTED_PICTURE, selectedPicture);
+//                setResult(RESULT_OK, data);
+//                this.finish();
+                SendPhotoBean bean = new SendPhotoBean();
+                bean.setData(selectedPicture);
+                EventBus.getDefault().post(bean);
                 this.finish();
                 break;
             case R.id.select_cancel_bt:
                 this.finish();
                 break;
-        }
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        if (position == 0) {
-            goCamare();
         }
     }
 
