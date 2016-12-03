@@ -34,6 +34,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,17 +106,18 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
 //                this.finish();
                 break;
             case R.id.select_ok:
-//                upPhoto();
+                if("".equals(id)){
+                    ToastUtils.show("请选择大本营");
+                    return;
+                }
                 String content=sendContent.getText().toString().trim();
                 String image="";
                 if(content.length()<=0&&selectedPicture.size()<=0){
                     ToastUtils.show("请选择图片或者输入内容");
+                }else if(content.length()<0&&selectedPicture.size()>0){
+                    upPhoto(content,selectedPicture);
                 }else {
-                    if("".equals(id)){
-                        ToastUtils.show("请选择大本营");
-                    }else {
-                        sendMessage(content,id,image,addr,latLonPoint);
-                    }
+                    sendMessage(content,id,image,addr,latLonPoint);
                 }
                 break;
             case R.id.send_message_closeseat:
@@ -170,18 +172,19 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
         }.isShowLoading(true).send();
     }
 
-    private void upPhoto() {
+    private void upPhoto(final String content,final List<String> upfilePath) {
         new CommonRequest<UpPhotoBean>(this) {
             @Override
             protected Observable<UpPhotoBean> doBackground() {
+                //一般将图片转成数组上传
                 addParam("file","file");
                 return createApi(ApiService.class).upPhoto(getParams());
             }
 
             @Override
             protected void onResponse(UpPhotoBean result) {
-
-
+                String filePath=result.getPath();
+                sendMessage(content,id,filePath ,addr,latLonPoint);
             }
 
             @Override
@@ -191,6 +194,8 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
 
         }.isShowLoading(true).send();
     }
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getZoneName(ZoneBean.DataBean event) {
