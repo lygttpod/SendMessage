@@ -12,7 +12,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.allen.send_message.MyApplication;
 import com.allen.send_message.R;
 import com.allen.send_message.bean.PoiItemsBean;
 import com.allen.send_message.widget.DividerItemDecoration;
@@ -22,6 +21,8 @@ import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -130,6 +131,12 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
         adapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
+
+                PoiItemsBean poiItemsBean= new PoiItemsBean();
+
+                poiItemsBean.setTitle(poiItemsBeans.get(position).getTitle());
+                poiItemsBean.setLatLonPoint(poiItemsBeans.get(position).getLatLonPoint());
+
                 //清除以前选择的位置标志
                 for (PoiItemsBean p : poiItemsBeans) {
                     if (p.isSelect()) {
@@ -137,6 +144,9 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
                     }
                 }
                 poiItemsBeans.get(position).setSelect(true);
+
+                EventBus.getDefault().post(poiItemsBean);
+
                 finish();
             }
 
@@ -209,7 +219,6 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
                     PoiItemsBean poiItemBean = new PoiItemsBean(poiItem.getTitle(), poiItem.getSnippet(), poiItem.getLatLonPoint().toString());
                     poiItemsBeans.add(poiItemBean);
                 }
-                MyApplication.setPoiItemsBeanList(poiItemsBeans);
                 Log.d("allen", "onPoiSearched----------: " + poiItemsBeans.toString());
                 adapter.notifyDataSetChanged();
             } else {

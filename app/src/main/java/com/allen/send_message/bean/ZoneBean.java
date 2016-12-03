@@ -41,6 +41,15 @@ public class ZoneBean {
 
         private String name;
         private AdminBean admin;
+        private boolean isSelect;
+
+        public boolean isSelect() {
+            return isSelect;
+        }
+
+        public void setSelect(boolean select) {
+            isSelect = select;
+        }
 
         public String getName() {
             return name;

@@ -23,11 +23,18 @@ public class LocationAdapter extends CommonAdapter<PoiItemsBean> {
     @Override
     protected void convert(ViewHolder holder, PoiItemsBean poiItemsBean, int position) {
         holder.setText(R.id.location_title_tv, poiItemsBean.getTitle());
-        holder.setText(R.id.location_snippet_tv, poiItemsBean.getSnippet());
+        if ("".equals(poiItemsBean.getSnippet())) {
+            holder.setVisible(R.id.location_snippet_tv, false);
+        } else {
+            holder.setVisible(R.id.location_snippet_tv, true);
+
+            holder.setText(R.id.location_snippet_tv, poiItemsBean.getSnippet());
+
+        }
         if (poiItemsBean.isSelect()) {
-            holder.setImageResource(R.id.isSelect_icon_iv, R.mipmap.yes_icon);
-        }else {
-            holder.setImageResource(R.id.isSelect_icon_iv, 0);
+            holder.setVisible(R.id.isSelect_icon_iv, true);
+        } else {
+            holder.setVisible(R.id.isSelect_icon_iv, false);
 
         }
     }

@@ -11,6 +11,9 @@ public class PoiItemsBean {
     private String latLonPoint;
     private boolean isSelect;
 
+
+    public PoiItemsBean() {
+    }
     public PoiItemsBean(String title, String snippet, String latLonPoint) {
         this.title = title;
         this.snippet = snippet;

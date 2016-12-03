@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.allen.send_message.bean.PoiItemsBean;
+import com.allen.send_message.bean.ZoneBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,15 @@ public class MyApplication extends Application {
     private static String address;
 
     private static List<PoiItemsBean> poiItemsBeanList = new ArrayList<>();
+    private static List<ZoneBean.DataBean> dataBeanList = new ArrayList<>();
+
+    public static List<ZoneBean.DataBean> getDataBeanList() {
+        return dataBeanList;
+    }
+
+    public static void setDataBeanList(List<ZoneBean.DataBean> dataBeanList) {
+        MyApplication.dataBeanList = dataBeanList;
+    }
 
     public static String getAddress() {
         return address;

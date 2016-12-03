@@ -29,6 +29,8 @@ import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +70,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
     private String address;
     private String mCityCode;
+    private String mCityName;
 
     private List<PoiItemsBean> poiItemsBeans = new ArrayList<>();
 
@@ -84,7 +87,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         poiItemsBeans = MyApplication.getPoiItemsBeanList();
 
         initView();
-//        initMap();
+        initMap();
     }
 
     private void initView() {
@@ -100,6 +103,10 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         adapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
+                PoiItemsBean poiItemsBean= new PoiItemsBean();
+
+                poiItemsBean.setTitle(poiItemsBeans.get(position).getTitle());
+                poiItemsBean.setLatLonPoint(poiItemsBeans.get(position).getLatLonPoint());
                 //清除以前选择的位置标志
                 for (PoiItemsBean p : poiItemsBeans) {
                     if (p.isSelect()) {
@@ -107,6 +114,9 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                     }
                 }
                 poiItemsBeans.get(position).setSelect(true);
+
+                EventBus.getDefault().post(poiItemsBean);
+
                 finish();
             }
 
@@ -126,7 +136,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
         aMapLocationClientOption = new AMapLocationClientOption();
 
-        aMapLocationClientOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Device_Sensors);
+        aMapLocationClientOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         aMapLocationClientOption.setInterval(10000);
 
         aMapLocationClient.setLocationOption(aMapLocationClientOption);
@@ -177,7 +187,9 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                 mLatitude = aMapLocation.getLatitude();//纬度
                 mLongitude = aMapLocation.getLongitude();//经度
                 mCityCode = aMapLocation.getCityCode();
+                mCityName = aMapLocation.getCity();
                 if (address == null) {
+                    address = aMapLocation.getAddress();
                     MyApplication.setAddress(aMapLocation.getAddress());
                     poi_Search(mLatitude, mLongitude, mCityCode);
 
@@ -221,9 +233,15 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         if (poiResult != null) {
             List<PoiItem> poiItems = poiResult.getPois();
             poiItemsBeans.clear();
-            for (PoiItem poiItem : poiItems) {
-                PoiItemsBean poiItemBean = new PoiItemsBean(poiItem.getTitle(), poiItem.getSnippet(), poiItem.getLatLonPoint().toString());
-                poiItemsBeans.add(poiItemBean);
+            for (int i = 0; i < poiItems.size(); i++) {
+                if (i == 0) {
+                    PoiItemsBean poiItemBean = new PoiItemsBean(mCityName, "", mLatitude + "," + mLongitude);
+                    poiItemsBeans.add(poiItemBean);
+                } else {
+                    PoiItemsBean poiItemBean = new PoiItemsBean(poiItems.get(i).getTitle(), poiItems.get(i).getSnippet(), poiItems.get(i).getLatLonPoint().toString());
+                    poiItemsBeans.add(poiItemBean);
+                }
+
             }
             MyApplication.setPoiItemsBeanList(poiItemsBeans);
             Log.d("allen", "onPoiSearched----------: " + poiItemsBeans.toString());
@@ -242,7 +260,6 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                 break;
             case R.id.open_setting_btn:
                 openSetting();
-                this.finish();
                 break;
             case R.id.search_location_ll:
                 Intent i = new Intent();
@@ -279,6 +296,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
     @PermissionSuccess(requestCode = 100)
     public void startLocation() {
+
         showNoOpenServiceLl.setVisibility(View.GONE);
         initMap();
     }
@@ -286,7 +304,6 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     @PermissionFail(requestCode = 100)
     public void doFailSomething() {
         showNoOpenServiceLl.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "权限请求失败", LENGTH_SHORT).show();
     }
 
 }
