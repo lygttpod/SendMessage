@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,8 +45,8 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
     RecyclerView searchRecyclerView;
     @BindView(R.id.search_view)
     SearchView searchView;
-    @BindView(R.id.no_data_tv)
-    TextView noDataTv;
+    @BindView(R.id.show_no_data_ll)
+    LinearLayout noDataTv;
 
 
     private double mLatitude;

@@ -27,10 +27,56 @@
             android:layout_height="40dp"/>
     </LinearLayout>
 
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/location_recycler_view"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/location_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:id="@+id/show_no_open_service_ll"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@mipmap/dingwei"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textSize="16sp"
+                android:layout_marginTop="10dp"
+                android:textColor="#777777"
+                android:text="定位服务不可用"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_marginTop="7.5dp"
+                android:textColor="#cfcfcf"
+                android:textSize="14sp"
+                android:text="建议开启定位服务（设置>隐私>开启云沃客定位服务）"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/open_setting_btn"
+                android:text="开启定位"
+                android:layout_marginTop="10dp"
+                android:textColor="#ff6700"
+                android:background="@drawable/button_bg"
+                android:layout_width="120dp"
+                android:layout_height="40dp" />
+        </LinearLayout>
+    </FrameLayout>
+
+
 
 </LinearLayout>

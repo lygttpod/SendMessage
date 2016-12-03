@@ -22,14 +22,15 @@
             android:src="@mipmap/icon_back_normal" />
 
         <EditText
-            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:background="@drawable/search_gray_bg"
             android:drawableLeft="@android:drawable/ic_menu_search"
             android:hint="搜索附近"
-            android:layout_gravity="center"
-            android:background="@drawable/search_gray_bg"
-            android:layout_weight="5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            android:visibility="gone" />
+
         <SearchView
             android:id="@+id/search_view"
             android:layout_width="0dp"
@@ -37,8 +38,8 @@
             android:layout_marginBottom="3dp"
             android:layout_marginTop="5dp"
             android:layout_weight="5"
-            android:iconifiedByDefault="false"
             android:background="@drawable/search_gray_bg"
+            android:iconifiedByDefault="false"
             android:queryHint="搜索附近" />
 
         <TextView
@@ -63,13 +64,40 @@
             android:layout_height="match_parent"
             android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/no_data_tv"
+        <LinearLayout
+            android:id="@+id/show_no_data_ll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="没有搜索到对应数据"
-            android:visibility="gone" />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@mipmap/sousuo_kong" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="没有搜到相关内容"
+                android:textColor="#777777"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7.5dp"
+                android:gravity="center"
+                android:text="换个关键词试试吧"
+                android:textColor="#cfcfcf"
+                android:textSize="14sp" />
+        </LinearLayout>
+
     </FrameLayout>
 
 </LinearLayout>

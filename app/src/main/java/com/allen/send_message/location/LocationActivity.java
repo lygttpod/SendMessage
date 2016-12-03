@@ -1,12 +1,16 @@
 package com.allen.send_message.location;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +35,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import kr.co.namee.permissiongen.PermissionFail;
+import kr.co.namee.permissiongen.PermissionGen;
+import kr.co.namee.permissiongen.PermissionSuccess;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 /**
  * Created by allen on 2016/12/2.
@@ -48,6 +57,8 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     TextView okTv;
     @BindView(R.id.location_recycler_view)
     RecyclerView locationRecyclerView;
+    @BindView(R.id.show_no_open_service_ll)
+    LinearLayout showNoOpenServiceLl;
 
     private AMapLocationClient aMapLocationClient;
     private AMapLocationClientOption aMapLocationClientOption;
@@ -73,7 +84,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         poiItemsBeans = MyApplication.getPoiItemsBeanList();
 
         initView();
-        initMap();
+//        initMap();
     }
 
     private void initView() {
@@ -115,7 +126,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
         aMapLocationClientOption = new AMapLocationClientOption();
 
-        aMapLocationClientOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        aMapLocationClientOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Device_Sensors);
         aMapLocationClientOption.setInterval(10000);
 
         aMapLocationClient.setLocationOption(aMapLocationClientOption);
@@ -125,6 +136,19 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         aMapLocationClient.setLocationListener(this);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PermissionGen
+                .with(this)
+                .addRequestCode(100)
+                .permissions(Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS)
+                .request();
+    }
+
     /**
      * 检索附近位置
      *
@@ -132,7 +156,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
      * @param longitude
      * @param cityCode
      */
-    private void poi_Search( double latitude, double longitude, String cityCode) {
+    private void poi_Search(double latitude, double longitude, String cityCode) {
         PoiSearch.Query mPoiSearchQuery = new PoiSearch.Query("", "", cityCode);
         mPoiSearchQuery.requireSubPois(true);   //true 搜索结果包含POI父子关系; false
         mPoiSearchQuery.setPageSize(50);
@@ -155,7 +179,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                 mCityCode = aMapLocation.getCityCode();
                 if (address == null) {
                     MyApplication.setAddress(aMapLocation.getAddress());
-                    poi_Search( mLatitude, mLongitude, mCityCode);
+                    poi_Search(mLatitude, mLongitude, mCityCode);
 
                 } else {
                     if (!address.equals(aMapLocation.getAddress())) {
@@ -182,7 +206,6 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     }
 
 
-
     @Override
     public void onPoiItemSearched(PoiItem poiItem, int i) {
 
@@ -190,6 +213,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
     /**
      * 处理附近位置列表数据
+     *
      * @param poiResult
      */
     private void doPoiResult(PoiResult poiResult) {
@@ -208,7 +232,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         }
     }
 
-    @OnClick({R.id.cancel_tv, R.id.title_tv, R.id.ok_tv,R.id.search_location_ll})
+    @OnClick({R.id.cancel_tv, R.id.title_tv, R.id.ok_tv, R.id.search_location_ll, R.id.open_setting_btn})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.cancel_tv:
@@ -216,21 +240,53 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                 break;
             case R.id.title_tv:
                 break;
+            case R.id.open_setting_btn:
+                openSetting();
+                this.finish();
+                break;
             case R.id.search_location_ll:
                 Intent i = new Intent();
-                i.putExtra("latitude",mLatitude);
-                i.putExtra("longitude",mLongitude);
-                i.putExtra("cityCode",mCityCode);
-                i.setClass(this,SearchLocationActivity.class);
+                i.putExtra("latitude", mLatitude);
+                i.putExtra("longitude", mLongitude);
+                i.putExtra("cityCode", mCityCode);
+                i.setClass(this, SearchLocationActivity.class);
                 startActivity(i);
                 break;
         }
+    }
+
+    /**
+     * 开启设置页面位置服务
+     */
+    private void openSetting() {
+
+        Intent mIntent = new Intent(Settings.ACTION_SETTINGS);
+
+        startActivity(mIntent);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         aMapLocationClient.stopLocation();
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        PermissionGen.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+    }
+
+    @PermissionSuccess(requestCode = 100)
+    public void startLocation() {
+        showNoOpenServiceLl.setVisibility(View.GONE);
+        initMap();
+    }
+
+    @PermissionFail(requestCode = 100)
+    public void doFailSomething() {
+        showNoOpenServiceLl.setVisibility(View.VISIBLE);
+        Toast.makeText(this, "权限请求失败", LENGTH_SHORT).show();
     }
 
 }
