@@ -26,9 +26,7 @@ public class MainActivity extends AppCompatActivity {
      * 开启设置页面位置服务
      */
     private void openSetting() {
-
         Intent mIntent = new Intent(Settings.ACTION_SETTINGS);
-
         startActivity(mIntent);
     }
     @OnClick({R.id.send_message_btn, R.id.location_btn, R.id.photos_btn, R.id.zone_btn})
@@ -36,7 +34,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.send_message_btn:
-                openSetting();
+//                openSetting();
+                intent.setClass(this, SendMessageActivity.class);
+                startActivity(intent);
                 break;
             case R.id.location_btn:
                 intent.setClass(this, LocationActivity.class);

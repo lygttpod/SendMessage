@@ -42,10 +42,7 @@ import butterknife.ButterKnife;
  * <p>
  * 选择照片
  */
-
-public class SelectPhotosActivity1 extends Activity {
-
-
+public class SelectPhotosActivity1 extends Activity implements View.OnClickListener ,AdapterView.OnItemClickListener{
     @BindView(R.id.select_cancel_bt)
     Button selectCancelBt;
     @BindView(R.id.select_ok_bt)
@@ -93,23 +90,6 @@ public class SelectPhotosActivity1 extends Activity {
         mContentResolver = getContentResolver();
         initView();
     }
-
-
-
-    /**
-     * 点击完成按钮
-     *
-     * @version 1.0
-     * @author zyh
-     * @param v
-     */
-    public void ok(View v) {
-        Intent data = new Intent();
-        data.putExtra(INTENT_SELECTED_PICTURE, selectedPicture);
-        setResult(RESULT_OK, data);
-        this.finish();
-    }
-
     private void initView() {
         imageAll = new ImageFloder();
         currentImageFolder = imageAll;
@@ -117,15 +97,7 @@ public class SelectPhotosActivity1 extends Activity {
         selectOkBt.setText("完成0/" + MAX_NUM);
         adapter = new PictureAdapter();
         selectPhotoGv.setAdapter(adapter);
-
-        selectPhotoGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    goCamare();
-                }
-            }
-        });
+        selectPhotoGv.setOnItemClickListener(this);
         getThumbnail();
     }
 
@@ -140,7 +112,6 @@ public class SelectPhotosActivity1 extends Activity {
             Toast.makeText(context, "最多选择" + MAX_NUM + "张", Toast.LENGTH_SHORT).show();
             return;
         }
-
         Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         Uri imageUri = getOutputMediaFileUri();
         openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -150,9 +121,9 @@ public class SelectPhotosActivity1 extends Activity {
     /**
      * 用于拍照时获取输出的Uri
      *
+     * @return
      * @version 1.0
      * @author zyh
-     * @return
      */
     protected Uri getOutputMediaFileUri() {
         File mediaStorageDir = new File(
@@ -180,9 +151,26 @@ public class SelectPhotosActivity1 extends Activity {
             this.finish();
         }
     }
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.select_ok_bt:
+                Intent data = new Intent();
+                data.putExtra(INTENT_SELECTED_PICTURE, selectedPicture);
+                setResult(RESULT_OK, data);
+                this.finish();
+                break;
+            case R.id.select_cancel_bt:
+                this.finish();
+                break;
+        }
+    }
 
-    public void back(View v) {
-        onBackPressed();
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        if (position == 0) {
+            goCamare();
+        }
     }
 
     class PictureAdapter extends BaseAdapter {
@@ -221,7 +209,7 @@ public class SelectPhotosActivity1 extends Activity {
                 position = position - 1;
                 holder.checkBox.setVisibility(View.VISIBLE);
                 final ImageItem item = currentImageFolder.images.get(position);
-                String path="file://"+item.path;
+                String path = "file://" + item.path;
                 Glide.with(context).load(path).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500).into(holder.iv);
                 boolean isSelected = selectedPicture.contains(item.path);
                 holder.checkBox.setOnClickListener(new View.OnClickListener() {
@@ -236,7 +224,7 @@ public class SelectPhotosActivity1 extends Activity {
                         } else {
                             selectedPicture.add(item.path);
                         }
-                        selectOkBt.setEnabled(selectedPicture.size()>0);
+                        selectOkBt.setEnabled(selectedPicture.size() > 0);
                         selectOkBt.setText("完成" + selectedPicture.size() + "/" + MAX_NUM);
                         v.setSelected(selectedPicture.contains(item.path));
                     }
@@ -257,7 +245,7 @@ public class SelectPhotosActivity1 extends Activity {
      */
     private void getThumbnail() {
         Cursor mCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.ImageColumns.DATA }, "", null,
+                new String[]{MediaStore.Images.ImageColumns.DATA}, "", null,
                 MediaStore.MediaColumns.DATE_ADDED + " DESC");
         // Log.e("TAG", mCursor.getCount() + "");
         if (mCursor.moveToFirst()) {
@@ -312,8 +300,10 @@ public class SelectPhotosActivity1 extends Activity {
             this.firstImagePath = firstImagePath;
         }
     }
+
     class ImageItem {
         String path;
+
         public ImageItem(String p) {
             this.path = p;
         }
