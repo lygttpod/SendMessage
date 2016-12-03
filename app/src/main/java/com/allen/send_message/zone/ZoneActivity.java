@@ -89,13 +89,9 @@ public class ZoneActivity extends AppCompatActivity implements ILoadingView {
             @Override
             public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
                 ZoneBean.DataBean dataBean_post = new ZoneBean.DataBean();
-                ZoneBean.DataBean.AdminBean AdminBean_post = new ZoneBean.DataBean.AdminBean();
-                AdminBean_post.setName(dataBeanList.get(position).getAdmin().getName());
-                AdminBean_post.setId(dataBeanList.get(position).getAdmin().getId());
-
-                dataBean_post.setAdmin(AdminBean_post);
-
-//                //清除以前选择的位置标志
+                dataBean_post.setId(dataBeanList.get(position).getId());
+                dataBean_post.setName(dataBeanList.get(position).getName());
+                //清除以前选择的位置标志
                 for (ZoneBean.DataBean dataBean : dataBeanList) {
                     if (dataBean.isSelect()) {
                         dataBean.setSelect(false);
@@ -155,11 +151,11 @@ public class ZoneActivity extends AppCompatActivity implements ILoadingView {
 
                 }else {
                     dataBean.setName(result.getData().get(i).getName());
+                    dataBean.setId(result.getData().get(i).getId());
 
                     ZoneBean.DataBean.AdminBean adminBean = new ZoneBean.DataBean.AdminBean();
                     adminBean.setName(result.getData().get(i).getAdmin().getName());
 
-                    dataBean.setAdmin(adminBean);
                     dataBean.setAdmin(adminBean);
                 }
 

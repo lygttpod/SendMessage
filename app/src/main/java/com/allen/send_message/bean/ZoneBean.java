@@ -17,6 +17,7 @@ public class ZoneBean {
     private int error_code;
     private List<DataBean> data;
 
+
     public int getError_code() {
         return error_code;
     }
@@ -42,6 +43,15 @@ public class ZoneBean {
         private String name;
         private AdminBean admin;
         private boolean isSelect;
+        private String id;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public boolean isSelect() {
             return isSelect;
