@@ -1,6 +1,7 @@
 package com.allen.send_message.network.retrofit;
 
 import com.allen.send_message.MyApplication;
+import com.allen.send_message.network.api.ApiAddress;
 import com.allen.send_message.utils.NetUtils;
 import com.allen.send_message.utils.ToastUtils;
 
@@ -66,6 +67,9 @@ public abstract class BaseRequest<T> {
 
     public <K> K createApi(final Class<K> cls) {
         return RetrofitUtils.getInstance().getRetrofit().create(cls);
+    }
+    public <K> K createApi1(final Class<K> cls) {
+        return RetrofitUtils.getInstance().getRetrofit(ApiAddress.BaseImgUrl).create(cls);
     }
 
     /**

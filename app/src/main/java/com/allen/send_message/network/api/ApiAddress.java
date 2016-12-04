@@ -8,4 +8,6 @@ package com.allen.send_message.network.api;
 public class ApiAddress {
 
     public static String BaseUrl = "http://test.yunwoke.com:8900/api/";
+    public static String BaseImgUrl = "http://test.yunwoke.com/api/";
+
 }
