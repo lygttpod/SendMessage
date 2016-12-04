@@ -167,10 +167,6 @@ public class SelectPhotosActivity1 extends Activity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.select_ok_bt:
-//                Intent data = new Intent();
-//                data.putExtra(INTENT_SELECTED_PICTURE, selectedPicture);
-//                setResult(RESULT_OK, data);
-//                this.finish();
                 SendPhotoBean bean = new SendPhotoBean();
                 bean.setData(selectedPicture);
                 EventBus.getDefault().post(bean);
