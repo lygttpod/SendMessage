@@ -60,7 +60,7 @@ public class SelectPhotosActivity1 extends Activity implements View.OnClickListe
     /**
      * 最多选择图片的个数
      */
-    private static int MAX_NUM = 6;
+    private static int MAX_NUM = 9;
     private static final int TAKE_PICTURE = 520;
 
     public static final String INTENT_MAX_NUM = "intent_max_num";
@@ -89,7 +89,7 @@ public class SelectPhotosActivity1 extends Activity implements View.OnClickListe
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_select_photo);
         ButterKnife.bind(this);
-        MAX_NUM = getIntent().getIntExtra(INTENT_MAX_NUM, 6);
+        MAX_NUM = getIntent().getIntExtra(INTENT_MAX_NUM, 9);
         context = this;
         mContentResolver = getContentResolver();
         initView();

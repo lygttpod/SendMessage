@@ -21,22 +21,29 @@ import java.util.List;
 
 public class SendMessageAdapter extends CommonAdapter<String> {
     private Context context;
+    private List<String> datas;
 
     public SendMessageAdapter(Context context, List<String> datas) {
         super(context, R.layout.grid_item_photo, datas);
         this.context = context;
+        this.datas=datas;
     }
 
     @Override
     protected void convert(ViewHolder holder, String s, final int position) {
-        Glide.with(context).load(s).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500)
-                .into((ImageView) holder.getView(R.id.iv));
-        holder.setOnClickListener(R.id.close, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDatas().remove(position);
-                notifyDataSetChanged();
-            }
-        });
+        if(datas.size()>=9){
+            Glide.with(context).load(s).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500)
+                    .into((ImageView) holder.getView(R.id.iv));
+            holder.setOnClickListener(R.id.close, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getDatas().remove(position);
+                    notifyDataSetChanged();
+                }
+            });
+        }else{
+            Glide.with(context).load(s).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500)
+                    .into((ImageView) holder.getView(R.id.iv));
+        }
     }
 }
