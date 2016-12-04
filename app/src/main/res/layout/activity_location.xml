@@ -1,82 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/bg"
     android:layout_height="match_parent"
+    android:background="@color/bg"
     android:orientation="vertical">
 
 
-    <include layout="@layout/top_bar_layout"/>
+    <include layout="@layout/top_bar_layout" />
 
     <LinearLayout
         android:id="@+id/search_location_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
         android:background="@drawable/search_bg"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:gravity="center"
+        android:orientation="horizontal">
+
         <TextView
-            android:text="搜索"
-            android:gravity="center"
-            android:drawableLeft="@android:drawable/ic_menu_search"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"/>
+            android:layout_height="40dp"
+            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:gravity="center"
+            android:text="搜索" />
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/location_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <LinearLayout
+            android:id="@+id/show_no_open_service_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:id="@+id/show_no_open_service_ll"
-            android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:visibility="gone">
+
             <ImageView
-                android:src="@mipmap/dingwei"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:src="@mipmap/dingwei" />
+
             <TextView
-                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:textColor="#777777"
+                android:gravity="center"
                 android:text="定位服务不可用"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:textColor="#777777"
+                android:textSize="16sp" />
+
             <TextView
-                android:layout_marginTop="7.5dp"
-                android:textColor="#cfcfcf"
-                android:textSize="14sp"
-                android:text="建议开启定位服务（设置>隐私>开启云沃客定位服务）"
-                android:gravity="center"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7.5dp"
+                android:gravity="center"
+                android:text="建议开启定位服务（设置>隐私>开启云沃客定位服务）"
+                android:textColor="#cfcfcf"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/open_setting_btn"
-                android:text="开启定位"
-                android:layout_marginTop="10dp"
-                android:textColor="#ff6700"
-                android:background="@drawable/button_bg"
                 android:layout_width="120dp"
-                android:layout_height="40dp" />
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/button_bg"
+                android:text="开启定位"
+                android:textColor="#ff6700" />
         </LinearLayout>
     </FrameLayout>
-
 
 
 </LinearLayout>

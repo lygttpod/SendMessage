@@ -63,7 +63,7 @@
         <activity android:name=".location.LocationActivity" />
         <activity android:name=".location.SearchLocationActivity" />
         <activity android:name=".zone.ZoneActivity" />
-        <activity android:name=".SendMessageActivity"/>
+        <activity android:name=".SendMessageActivity" android:launchMode="singleTask"/>
     </application>
 
 </manifest>

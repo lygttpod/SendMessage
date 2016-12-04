@@ -1,10 +1,15 @@
 package com.allen.send_message.location;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,8 +21,10 @@ import android.widget.Toast;
 
 import com.allen.send_message.MyApplication;
 import com.allen.send_message.R;
+import com.allen.send_message.base.ILoadingView;
 import com.allen.send_message.bean.PoiItemsBean;
 import com.allen.send_message.widget.DividerItemDecoration;
+import com.allen.send_message.widget.LoadingDialog;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
@@ -49,7 +56,7 @@ import static android.widget.Toast.LENGTH_SHORT;
  * 定位
  */
 
-public class LocationActivity extends AppCompatActivity implements AMapLocationListener, PoiSearch.OnPoiSearchListener {
+public class LocationActivity extends AppCompatActivity implements AMapLocationListener, PoiSearch.OnPoiSearchListener, ILoadingView {
 
     @BindView(R.id.cancel_tv)
     TextView cancelTv;
@@ -61,6 +68,10 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     RecyclerView locationRecyclerView;
     @BindView(R.id.show_no_open_service_ll)
     LinearLayout showNoOpenServiceLl;
+
+
+    private LoadingDialog mLoadingDialog;
+
 
     private AMapLocationClient aMapLocationClient;
     private AMapLocationClientOption aMapLocationClientOption;
@@ -77,17 +88,40 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
     private LocationAdapter adapter;
 
+    private String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
         ButterKnife.bind(this);
 
+        checkPermission();
+
         address = MyApplication.getAddress();
         poiItemsBeans = MyApplication.getPoiItemsBeanList();
 
         initView();
-        initMap();
+
+
+    }
+
+    /**
+     * 检查位置权限
+     */
+    private void checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int checkSelfPermission = ContextCompat.checkSelfPermission(this, Manifest.permission_group.LOCATION);
+
+            if (checkSelfPermission == PackageManager.PERMISSION_GRANTED) {
+                initMap();
+            } else {
+                ActivityCompat.requestPermissions(this, permissions, 100);
+            }
+        } else {
+            initMap();
+        }
+
     }
 
     private void initView() {
@@ -103,7 +137,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
         adapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
-                PoiItemsBean poiItemsBean= new PoiItemsBean();
+                PoiItemsBean poiItemsBean = new PoiItemsBean();
 
                 poiItemsBean.setTitle(poiItemsBeans.get(position).getTitle());
                 poiItemsBean.setLatLonPoint(poiItemsBeans.get(position).getLatLonPoint());
@@ -150,13 +184,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     @Override
     protected void onResume() {
         super.onResume();
-        PermissionGen
-                .with(this)
-                .addRequestCode(100)
-                .permissions(Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS)
-                .request();
+
     }
 
     /**
@@ -167,6 +195,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
      * @param cityCode
      */
     private void poi_Search(double latitude, double longitude, String cityCode) {
+        showLoading();
         PoiSearch.Query mPoiSearchQuery = new PoiSearch.Query("", "", cityCode);
         mPoiSearchQuery.requireSubPois(true);   //true 搜索结果包含POI父子关系; false
         mPoiSearchQuery.setPageSize(50);
@@ -184,6 +213,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (aMapLocation != null) {
             if (aMapLocation.getErrorCode() == 0) {
+                showNoOpenServiceLl.setVisibility(View.GONE);
                 mLatitude = aMapLocation.getLatitude();//纬度
                 mLongitude = aMapLocation.getLongitude();//经度
                 mCityCode = aMapLocation.getCityCode();
@@ -195,11 +225,13 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
                 } else {
                     if (!address.equals(aMapLocation.getAddress())) {
+                        address = aMapLocation.getAddress();
                         MyApplication.setAddress(aMapLocation.getAddress());
                         poi_Search(mLatitude, mLongitude, mCityCode);
                     }
                 }
             } else {
+                showNoOpenServiceLl.setVisibility(View.VISIBLE);
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 Log.e("allen", "location Error, ErrCode:"
                         + aMapLocation.getErrorCode() + ", errInfo:"
@@ -210,6 +242,7 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
 
     @Override
     public void onPoiSearched(PoiResult poiResult, int rCode) {
+        dismissLoading();
         if (rCode == AMapException.CODE_AMAP_SUCCESS) {
             doPoiResult(poiResult);
         } else {
@@ -237,11 +270,10 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
                 if (i == 0) {
                     PoiItemsBean poiItemBean = new PoiItemsBean("不显示位置", "", "");
                     poiItemsBeans.add(poiItemBean);
-                } else if (i==1){
+                } else if (i == 1) {
                     PoiItemsBean poiItemBean = new PoiItemsBean(mCityName, "", mLatitude + "," + mLongitude);
                     poiItemsBeans.add(poiItemBean);
-                }
-                else {
+                } else {
                     PoiItemsBean poiItemBean = new PoiItemsBean(poiItems.get(i).getTitle(), poiItems.get(i).getSnippet(), poiItems.get(i).getLatLonPoint().toString());
                     poiItemsBeans.add(poiItemBean);
                 }
@@ -293,21 +325,51 @@ public class LocationActivity extends AppCompatActivity implements AMapLocationL
     }
 
 
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        PermissionGen.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+//    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        PermissionGen.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initMap();
+            } else {
+                showNoOpenServiceLl.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
-    @PermissionSuccess(requestCode = 100)
-    public void startLocation() {
+//    @PermissionSuccess(requestCode = 100)
+//    public void startLocation() {
+//
+//        showNoOpenServiceLl.setVisibility(View.GONE);
+//        initMap();
+//    }
+//
+//    @PermissionFail(requestCode = 100)
+//    public void doFailSomething() {
+//        showNoOpenServiceLl.setVisibility(View.VISIBLE);
+//    }
 
-        showNoOpenServiceLl.setVisibility(View.GONE);
-        initMap();
+    @Override
+    public void showLoading() {
+
+        if (mLoadingDialog == null) {
+            mLoadingDialog = new LoadingDialog(this);
+        }
+        if (poiItemsBeans.size() <= 0) {
+            mLoadingDialog.show();
+        }
     }
 
-    @PermissionFail(requestCode = 100)
-    public void doFailSomething() {
-        showNoOpenServiceLl.setVisibility(View.VISIBLE);
+    @Override
+    public void dismissLoading() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+        }
     }
-
 }

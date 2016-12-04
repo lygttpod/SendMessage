@@ -1,5 +1,6 @@
 package com.allen.send_message.location;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,8 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.allen.send_message.R;
+import com.allen.send_message.SendMessageActivity;
+import com.allen.send_message.base.ILoadingView;
 import com.allen.send_message.bean.PoiItemsBean;
 import com.allen.send_message.widget.DividerItemDecoration;
+import com.allen.send_message.widget.LoadingDialog;
 import com.amap.api.services.core.AMapException;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
@@ -36,7 +40,7 @@ import butterknife.OnClick;
  * Created by allen on 2016/12/2.
  * 搜索附近位置
  */
-public class SearchLocationActivity extends AppCompatActivity implements PoiSearch.OnPoiSearchListener {
+public class SearchLocationActivity extends AppCompatActivity implements PoiSearch.OnPoiSearchListener, ILoadingView {
 
     @BindView(R.id.back_iv)
     ImageView backIv;
@@ -48,6 +52,8 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
     SearchView searchView;
     @BindView(R.id.show_no_data_ll)
     LinearLayout noDataTv;
+
+    private LoadingDialog mLoadingDialog;
 
 
     private double mLatitude;
@@ -132,7 +138,7 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
             @Override
             public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
 
-                PoiItemsBean poiItemsBean= new PoiItemsBean();
+                PoiItemsBean poiItemsBean = new PoiItemsBean();
 
                 poiItemsBean.setTitle(poiItemsBeans.get(position).getTitle());
                 poiItemsBean.setLatLonPoint(poiItemsBeans.get(position).getLatLonPoint());
@@ -146,7 +152,7 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
                 poiItemsBeans.get(position).setSelect(true);
 
                 EventBus.getDefault().post(poiItemsBean);
-
+                startActivity(new Intent(SearchLocationActivity.this, SendMessageActivity.class));
                 finish();
             }
 
@@ -167,6 +173,7 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
      * @param cityCode
      */
     private void poi_Search(String str, double latitude, double longitude, String cityCode) {
+        showLoading();
         PoiSearch.Query mPoiSearchQuery = new PoiSearch.Query(str, "", cityCode);
         mPoiSearchQuery.requireSubPois(true);   //true 搜索结果包含POI父子关系; false
         mPoiSearchQuery.setPageSize(50);
@@ -192,6 +199,7 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
 
     @Override
     public void onPoiSearched(PoiResult poiResult, int rCode) {
+        dismissLoading();
         if (rCode == AMapException.CODE_AMAP_SUCCESS) {
             doPoiResult(poiResult);
         } else {
@@ -211,10 +219,11 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
      */
     private void doPoiResult(PoiResult poiResult) {
         if (poiResult != null) {
+            poiItemsBeans.clear();
+
             List<PoiItem> poiItems = poiResult.getPois();
             if (poiItems.size() > 0) {
                 noDataTv.setVisibility(View.GONE);
-                poiItemsBeans.clear();
                 for (PoiItem poiItem : poiItems) {
                     PoiItemsBean poiItemBean = new PoiItemsBean(poiItem.getTitle(), poiItem.getSnippet(), poiItem.getLatLonPoint().toString());
                     poiItemsBeans.add(poiItemBean);
@@ -225,6 +234,21 @@ public class SearchLocationActivity extends AppCompatActivity implements PoiSear
                 noDataTv.setVisibility(View.VISIBLE);
             }
 
+        }
+    }
+
+    @Override
+    public void showLoading() {
+        if (mLoadingDialog == null) {
+            mLoadingDialog = new LoadingDialog(this);
+        }
+        mLoadingDialog.show();
+    }
+
+    @Override
+    public void dismissLoading() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
         }
     }
 }
