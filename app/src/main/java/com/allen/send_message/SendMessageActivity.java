@@ -146,8 +146,12 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
                 startActivity(intent);
                 break;
             case R.id.send_message_addphoto:
-                intent.setClass(this, SelectPhotosActivity.class);
-                startActivity(intent);
+                if (selectedPicture.size()<9){
+                    intent.setClass(this, SelectPhotosActivity.class);
+                    startActivity(intent);
+                }else {
+                    ToastUtils.show("最多只能显示9张照片哦");
+                }
                 break;
         }
     }

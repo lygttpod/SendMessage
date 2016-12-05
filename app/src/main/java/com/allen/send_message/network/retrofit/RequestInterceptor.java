@@ -31,7 +31,8 @@ public class RequestInterceptor implements Interceptor {
                 .url(authorizedUrlBuilder.build())
                 .addHeader("session_token", token)
                 .addHeader("Content-type", "application/json")
-                .addHeader("User-Agent", System.getProperty("http.agent"))
+//                .addHeader("User-Agent", System.getProperty("http.agent"))
+                .addHeader("User-Agent", "a/1.0.0/4.2/meizu351/wifi")
                 .build();
         Response response = null;
         try {
