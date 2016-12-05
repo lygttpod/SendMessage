@@ -19,7 +19,16 @@ public class SendMessageBean {
     private String images;
     private String addr;
     private String xy;
+    private String error_msg;
     private int error_code;
+
+    public String getError_msg() {
+        return error_msg;
+    }
+
+    public void setError_msg(String error_msg) {
+        this.error_msg = error_msg;
+    }
 
     public int getError_code() {
         return error_code;

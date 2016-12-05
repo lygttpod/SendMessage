@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.send_message.adapter.SendMessageAdapter;
 import com.allen.send_message.base.ILoadingView;
@@ -26,7 +23,6 @@ import com.allen.send_message.bean.ZoneBean;
 import com.allen.send_message.location.LocationActivity;
 import com.allen.send_message.network.api.ApiService;
 import com.allen.send_message.network.retrofit.CommonRequest;
-import com.allen.send_message.photos.SelectPhotosActivity1;
 import com.allen.send_message.utils.ToastUtils;
 import com.allen.send_message.widget.LoadingDialog;
 import com.allen.send_message.zone.ZoneActivity;
@@ -45,8 +41,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import retrofit2.Response;
 import rx.Observable;
 
 public class SendMessageActivity extends AppCompatActivity implements ILoadingView {
@@ -74,20 +70,22 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
     @BindView(R.id.send_message_addphoto)
     ImageView addphoto;
     private Intent intent;
-    private String id;
-    private String latLonPoint;
-    private String addr;
+    private String content = "";
+    private String id = "";
+    private String latLonPoint = "";
+    private String addr = "";
     private SendMessageAdapter adapter;
     private List<String> selectedPicture = new ArrayList<>();
     private LoadingDialog mLoadingDialog;
 
-
+    private StringBuffer filePaths = new StringBuffer();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_message);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
+        selectedPicture.clear();
         init();
     }
 
@@ -116,15 +114,17 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
                     ToastUtils.show("请选择大本营");
                     return;
                 }
-                String content = sendContent.getText().toString().trim();
+                content = sendContent.getText().toString().trim();
                 String image = "";
-                if (content.length() <= 0 && selectedPicture.size() <= 0) {
-                    ToastUtils.show("请选择图片或者输入内容");
-                } else if (content.length() <= 0 && selectedPicture.size() > 0) {
-                    upPhoto(content, selectedPicture);
-                } else {
-                    sendMessage(content, id, image, addr, latLonPoint);
+                if (selectedPicture.size()>0){
+                    for (int i = 0; i < selectedPicture.size(); i++) {
+                        upPhoto(content, selectedPicture.get(i),i);
+                    }
+                }else {
+                    sendMessage(content, id, filePaths, addr, latLonPoint);
+
                 }
+
                 break;
             case R.id.send_message_closeseat:
                 seatTv.setText("位置");
@@ -145,21 +145,22 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
                 startActivity(intent);
                 break;
             case R.id.send_message_addphoto:
-                intent.setClass(this, SelectPhotosActivity1.class);
+                intent.setClass(this, SelectPhotosActivity.class);
                 startActivity(intent);
                 break;
         }
     }
 
-    private void sendMessage(final String content, final String zone_id, final String image, final String addr, final String xy) {
+    private void sendMessage(final String content, final String zone_id, final StringBuffer image, final String addr, final String xy) {
         new CommonRequest<SendMessageBean>(this) {
             @Override
             protected Observable<SendMessageBean> doBackground() {
                 addParam("content", content);
                 addParam("zone_id", zone_id);
-                addParam("image", image);
+                addParam("images", image);
                 addParam("addr", addr);
                 addParam("xy", xy);
+                addParam("session_token", "r2QRsuS9VaeSvJKm4ryGNwqj0984f12154af8ee7");
                 return createApi(ApiService.class).sendMessage(getParams());
             }
 
@@ -172,22 +173,24 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
 
             @Override
             protected void onError(Throwable e) {
+                ToastUtils.show("返回结果：onError=" + e.getMessage());
 
             }
 
         }.isShowLoading(true).send();
     }
 
-    private void upPhoto(final String content, final List<String> upfilePath) {
-        new CommonRequest<UpPhotoBean>(this) {
+    private void upPhoto(final String content, final String upfilePath,final int i) {
+        new CommonRequest<Response<UpPhotoBean>>(this) {
             @Override
-            protected Observable<UpPhotoBean> doBackground() {
+            protected Observable<Response<UpPhotoBean>> doBackground() {
+                File file = new File(upfilePath);
 
                 Map<String, RequestBody> maps = new HashMap<>();
 
                 // 创建 RequestBody，用于封装构建RequestBody
                 RequestBody requestFile =
-                        RequestBody.create(MediaType.parse("image/png"), getFile(upfilePath));
+                        RequestBody.create(MediaType.parse("image/png"), file);
 
                 RequestBody tBody =
                         RequestBody.create(
@@ -195,19 +198,29 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
 
                 RequestBody sessionBody =
                         RequestBody.create(
-                                MediaType.parse("text/form-data"), "r953hKsA9xy6v5YUGWN6sCMc1a3fb097fca5539b");
+                                MediaType.parse("text/form-data"), "r2QRsuS9VaeSvJKm4ryGNwqj0984f12154af8ee7");
 
-                maps.put("session_token", sessionBody);
+                maps.put("file\"; filename=\"" + file.getName() + "", requestFile);
                 maps.put("t", tBody);
-                maps.put("file\"; filename=\"" + getFile(upfilePath).getName() + "", requestFile);
+                maps.put("session_token", sessionBody);
 
                 return createApi1(ApiService.class).upload(maps);
             }
 
             @Override
-            protected void onResponse(UpPhotoBean result) {
-                String filePath = result.getPath();
-                sendMessage(content, id, filePath, addr, latLonPoint);
+            protected void onResponse(Response<UpPhotoBean> result) {
+                String filePath = result.body().getPath();
+                if (filePaths.length()==0){
+                    filePaths.append(filePath);
+                }else {
+                    filePaths.append(";"+filePath);
+                }
+
+                Log.e("发送图片成功", filePath);
+
+                if (i==selectedPicture.size()-1){
+                    sendMessage(content, id, filePaths, addr, latLonPoint);
+                }
             }
 
             @Override
@@ -223,25 +236,40 @@ public class SendMessageActivity extends AppCompatActivity implements ILoadingVi
     public void getZoneName(ZoneBean.DataBean event) {
         id = event.getId();
         String name = event.getName();
-        strongholdTv.setText(name);
-        closeStronghold.setVisibility(View.VISIBLE);
+        if ("".equals(id)||null==id){
+            strongholdTv.setText("选择一个大本营");
+            closeStronghold.setVisibility(View.GONE);
+        }else {
+            strongholdTv.setText(name);
+            closeStronghold.setVisibility(View.VISIBLE);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getPosition(PoiItemsBean event) {
         latLonPoint = event.getLatLonPoint();
         addr = event.getTitle();
-        seatTv.setText(addr);
-        closeSeat.setVisibility(View.VISIBLE);
+
+        if ("".equals(latLonPoint)||null==latLonPoint){
+            seatTv.setText("位置");
+            closeSeat.setVisibility(View.GONE);
+        }else {
+            seatTv.setText(addr);
+            closeSeat.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getPhotoPosition(SendPhotoBean data) {
         for (int i = 0; i < data.getData().size(); i++) {
-            selectedPicture.add(data.getData().get(i));
+            if (selectedPicture.size()<9){
+                selectedPicture.add(data.getData().get(i));
+            }
         }
         adapter.notifyDataSetChanged();
     }
+
 
     @Override
     public void showLoading() {

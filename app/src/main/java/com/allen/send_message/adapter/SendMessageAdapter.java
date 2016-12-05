@@ -2,15 +2,12 @@ package com.allen.send_message.adapter;
 
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.allen.send_message.R;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.zhy.adapter.recyclerview.CommonAdapter;
-import com.zhy.adapter.recyclerview.base.*;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 import java.util.List;
@@ -31,7 +28,6 @@ public class SendMessageAdapter extends CommonAdapter<String> {
 
     @Override
     protected void convert(ViewHolder holder, String s, final int position) {
-        if(datas.size()>=9){
             Glide.with(context).load(s).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500)
                     .into((ImageView) holder.getView(R.id.iv));
             holder.setOnClickListener(R.id.close, new View.OnClickListener() {
@@ -41,9 +37,6 @@ public class SendMessageAdapter extends CommonAdapter<String> {
                     notifyDataSetChanged();
                 }
             });
-        }else{
-            Glide.with(context).load(s).diskCacheStrategy(DiskCacheStrategy.ALL).error(R.mipmap.ic_launcher).crossFade(500)
-                    .into((ImageView) holder.getView(R.id.iv));
-        }
+
     }
 }
