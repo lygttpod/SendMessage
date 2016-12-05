@@ -23,6 +23,7 @@ import com.allen.send_message.bean.ZoneBean;
 import com.allen.send_message.location.LocationActivity;
 import com.allen.send_message.network.api.ApiService;
 import com.allen.send_message.network.retrofit.CommonRequest;
+import com.allen.send_message.photos.SelectPhotosActivity;
 import com.allen.send_message.utils.ToastUtils;
 import com.allen.send_message.widget.LoadingDialog;
 import com.allen.send_message.zone.ZoneActivity;
